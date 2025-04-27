@@ -10,8 +10,8 @@ let package = Package(
     .iOS(.v18)
   ],
   products: [
-    .library(name: "SnapKitBinary", type: .dynamic, targets: ["SnapKitBinary"]),
-    .library(name: "ModernRIBsBinary", type: .dynamic, targets: ["ModernRIBsBinary"])
+    .library(name: "SnapKitBinary", targets: ["SnapKitBinary"]),
+    .library(name: "ModernRIBsBinary", targets: ["ModernRIBsBinary"])
   ],
   targets: [
     .binaryTarget(name: "SnapKitBinary", path: "Binaries/SnapKit.xcframework"),
