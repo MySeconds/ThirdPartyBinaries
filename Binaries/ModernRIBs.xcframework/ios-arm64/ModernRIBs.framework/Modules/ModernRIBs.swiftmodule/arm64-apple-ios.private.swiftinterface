@@ -1,0 +1,227 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 6.0.2 effective-5.10 (swiftlang-6.0.2.1.2 clang-1600.0.26.4)
+// swift-module-flags: -target arm64-apple-ios13.0 -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -enable-bare-slash-regex -module-name ModernRIBs
+// swift-module-flags-ignorable: -no-verify-emitted-module-interface
+import Combine
+import Dispatch
+import Foundation
+@_exported import ModernRIBs
+import Swift
+import UIKit
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+public enum LeakDetectionStatus {
+  case InProgress
+  case DidComplete
+  public static func == (a: ModernRIBs.LeakDetectionStatus, b: ModernRIBs.LeakDetectionStatus) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+public struct LeakDefaultExpectationTime {
+  public static let deallocation: Swift.Double
+  public static let viewDisappear: Swift.Double
+}
+public protocol LeakDetectionHandle {
+  func cancel()
+}
+@_hasMissingDesignatedInitializers public class LeakDetector {
+  public static let instance: ModernRIBs.LeakDetector
+  public var status: Combine.AnyPublisher<ModernRIBs.LeakDetectionStatus, Swift.Never> {
+    get
+  }
+  @discardableResult
+  public func expectDeallocate(object: Swift.AnyObject, inTime time: Foundation.TimeInterval = LeakDefaultExpectationTime.deallocation) -> any ModernRIBs.LeakDetectionHandle
+  @discardableResult
+  public func expectViewControllerDisappear(viewController: UIKit.UIViewController, inTime time: Foundation.TimeInterval = LeakDefaultExpectationTime.viewDisappear) -> any ModernRIBs.LeakDetectionHandle
+  @objc deinit
+}
+open class Component<DependencyType> : ModernRIBs.Dependency {
+  final public let dependency: DependencyType
+  public init(dependency: DependencyType)
+  final public func shared<T>(__function: Swift.String = #function, _ factory: () -> T) -> T
+  @objc deinit
+}
+open class EmptyComponent : ModernRIBs.EmptyDependency {
+  public init()
+  @objc deinit
+}
+extension Swift.Array {
+  public mutating func removeElementByReference(_ element: Element)
+}
+public protocol LaunchRouting : ModernRIBs.ViewableRouting {
+  func launch(from window: UIKit.UIWindow)
+}
+@_inheritsConvenienceInitializers open class LaunchRouter<InteractorType, ViewControllerType> : ModernRIBs.ViewableRouter<InteractorType, ViewControllerType>, ModernRIBs.LaunchRouting {
+  override public init(interactor: InteractorType, viewController: ViewControllerType)
+  final public func launch(from window: UIKit.UIWindow)
+  @objc deinit
+}
+@_hasMissingDesignatedInitializers public class Executor {
+  public static func execute(withDelay delay: Foundation.TimeInterval, maxFrameDuration: Swift.Int = 33, logic: @escaping () -> ())
+  @objc deinit
+}
+public protocol Working : AnyObject {
+  func start(_ interactorScope: any ModernRIBs.InteractorScope)
+  func stop()
+  var isStarted: Swift.Bool { get }
+  var isStartedStream: Combine.AnyPublisher<Swift.Bool, Swift.Never> { get }
+}
+open class Worker : ModernRIBs.Working {
+  final public var isStarted: Swift.Bool {
+    get
+  }
+  final public var isStartedStream: Combine.AnyPublisher<Swift.Bool, Swift.Never> {
+    get
+  }
+  public init()
+  final public func start(_ interactorScope: any ModernRIBs.InteractorScope)
+  open func didStart(_ interactorScope: any ModernRIBs.InteractorScope)
+  final public func stop()
+  open func didStop()
+  @objc deinit
+}
+extension Combine.AnyCancellable {
+  @discardableResult
+  final public func cancelOnStop(_ worker: ModernRIBs.Worker) -> Combine.AnyCancellable
+  @available(*, deprecated, renamed: "cancelOnStop()")
+  @discardableResult
+  final public func disposeOnStop(_ worker: ModernRIBs.Worker) -> Combine.AnyCancellable
+}
+public protocol Dependency : AnyObject {
+}
+public protocol EmptyDependency : ModernRIBs.Dependency {
+}
+public protocol InteractorScope : AnyObject {
+  var isActive: Swift.Bool { get }
+  var isActiveStream: Combine.AnyPublisher<Swift.Bool, Swift.Never> { get }
+}
+public protocol Interactable : ModernRIBs.InteractorScope {
+  func activate()
+  func deactivate()
+}
+open class Interactor : ModernRIBs.Interactable {
+  final public var isActive: Swift.Bool {
+    get
+  }
+  final public var isActiveStream: Combine.AnyPublisher<Swift.Bool, Swift.Never> {
+    get
+  }
+  public init()
+  final public func activate()
+  open func didBecomeActive()
+  final public func deactivate()
+  open func willResignActive()
+  @objc deinit
+}
+extension Combine.AnyPublisher {
+  public func confineTo(_ interactorScope: any ModernRIBs.InteractorScope) -> Combine.AnyPublisher<Output, Swift.Never>
+}
+extension Combine.AnyCancellable {
+  @discardableResult
+  final public func cancelOnDeactivate(interactor: ModernRIBs.Interactor) -> Combine.AnyCancellable
+  @available(*, deprecated, renamed: "cancelOnDeactivate(interactor:)")
+  @discardableResult
+  final public func disposeOnDeactivate(interactor: ModernRIBs.Interactor) -> Combine.AnyCancellable
+}
+public protocol ViewableRouting : ModernRIBs.Routing {
+  var viewControllable: any ModernRIBs.ViewControllable { get }
+}
+open class ViewableRouter<InteractorType, ViewControllerType> : ModernRIBs.Router<InteractorType>, ModernRIBs.ViewableRouting {
+  final public let viewController: ViewControllerType
+  final public let viewControllable: any ModernRIBs.ViewControllable
+  public init(interactor: InteractorType, viewController: ViewControllerType)
+  @objc deinit
+}
+open class Workflow<ActionableItemType> {
+  open func didComplete()
+  open func didFork()
+  open func didReceiveError(_ error: any Swift.Error)
+  public init()
+  final public func onStep<NextActionableItemType, NextValueType>(_ onStep: @escaping (ActionableItemType) -> Combine.AnyPublisher<(NextActionableItemType, NextValueType), any Swift.Error>) -> ModernRIBs.Step<ActionableItemType, NextActionableItemType, NextValueType>
+  final public func subscribe(_ actionableItem: ActionableItemType) -> any Combine.Cancellable
+  @objc deinit
+}
+@_hasMissingDesignatedInitializers open class Step<WorkflowActionableItemType, ActionableItemType, ValueType> {
+  final public func onStep<NextActionableItemType, NextValueType>(_ onStep: @escaping (ActionableItemType, ValueType) -> Combine.AnyPublisher<(NextActionableItemType, NextValueType), any Swift.Error>) -> ModernRIBs.Step<WorkflowActionableItemType, NextActionableItemType, NextValueType>
+  final public func onError(_ onError: @escaping ((any Swift.Error) -> ())) -> ModernRIBs.Step<WorkflowActionableItemType, ActionableItemType, ValueType>
+  @discardableResult
+  final public func commit() -> ModernRIBs.Workflow<WorkflowActionableItemType>
+  final public func asPublisher() -> Combine.AnyPublisher<(ActionableItemType, ValueType), any Swift.Error>
+  @available(*, deprecated, renamed: "asPublisher()")
+  final public func asObservable() -> Combine.AnyPublisher<(ActionableItemType, ValueType), any Swift.Error>
+  @objc deinit
+}
+extension Combine.Publisher {
+  public func fork<WorkflowActionableItemType, ActionableItemType, ValueType>(_ workflow: ModernRIBs.Workflow<WorkflowActionableItemType>) -> ModernRIBs.Step<WorkflowActionableItemType, ActionableItemType, ValueType>?
+}
+extension Combine.AnyCancellable {
+  final public func cancelWith<ActionableItemType>(workflow: ModernRIBs.Workflow<ActionableItemType>)
+  @available(*, deprecated, renamed: "cancelWith(workflow:)")
+  final public func disposeWith<ActionableItemType>(worflow: ModernRIBs.Workflow<ActionableItemType>)
+}
+open class PresentableInteractor<PresenterType> : ModernRIBs.Interactor {
+  final public let presenter: PresenterType
+  public init(presenter: PresenterType)
+  @objc deinit
+}
+public protocol Buildable : AnyObject {
+}
+open class Builder<DependencyType> : ModernRIBs.Buildable {
+  final public let dependency: DependencyType
+  public init(dependency: DependencyType)
+  @objc deinit
+}
+public protocol ViewControllable : AnyObject {
+  var uiviewController: UIKit.UIViewController { get }
+}
+extension ModernRIBs.ViewControllable where Self : UIKit.UIViewController {
+  public var uiviewController: UIKit.UIViewController {
+    get
+  }
+}
+public enum RouterLifecycle {
+  case didLoad
+  public static func == (a: ModernRIBs.RouterLifecycle, b: ModernRIBs.RouterLifecycle) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+public protocol RouterScope : AnyObject {
+  var lifecycle: Combine.AnyPublisher<ModernRIBs.RouterLifecycle, Swift.Never> { get }
+}
+public protocol Routing : ModernRIBs.RouterScope {
+  var interactable: any ModernRIBs.Interactable { get }
+  var children: [any ModernRIBs.Routing] { get }
+  func load()
+  func attachChild(_ child: any ModernRIBs.Routing)
+  func detachChild(_ child: any ModernRIBs.Routing)
+}
+open class Router<InteractorType> : ModernRIBs.Routing {
+  final public let interactor: InteractorType
+  final public let interactable: any ModernRIBs.Interactable
+  final public var children: [any ModernRIBs.Routing]
+  final public var lifecycle: Combine.AnyPublisher<ModernRIBs.RouterLifecycle, Swift.Never> {
+    get
+  }
+  public init(interactor: InteractorType)
+  final public func load()
+  open func didLoad()
+  final public func attachChild(_ child: any ModernRIBs.Routing)
+  final public func detachChild(_ child: any ModernRIBs.Routing)
+  @objc deinit
+}
+public protocol Presentable : AnyObject {
+}
+open class Presenter<ViewControllerType> : ModernRIBs.Presentable {
+  final public let viewController: ViewControllerType
+  public init(viewController: ViewControllerType)
+  @objc deinit
+}
+extension ModernRIBs.LeakDetectionStatus : Swift.Equatable {}
+extension ModernRIBs.LeakDetectionStatus : Swift.Hashable {}
+extension ModernRIBs.RouterLifecycle : Swift.Equatable {}
+extension ModernRIBs.RouterLifecycle : Swift.Hashable {}

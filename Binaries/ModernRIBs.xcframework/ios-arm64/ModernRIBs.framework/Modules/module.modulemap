@@ -1,0 +1,11 @@
+framework module ModernRIBs {
+  umbrella header "ModernRIBs.h"
+  export *
+
+  module * { export * }
+}
+
+module ModernRIBs.Swift {
+  header "ModernRIBs-Swift.h"
+  requires objc
+}
